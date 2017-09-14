@@ -77,7 +77,7 @@ func Example() {
 	}
 	fmt.Printf("lives saved by halving air pollution: %.0f\n", -1*halfDeaths)
 
-	// Some times it is not practical to calculate regional underlying
+	// Sometimes it is not practical to calculate regional underlying
 	// incidence. This is how we can calculate total deaths caused by air pollution
 	// using a location-specific underlying incidence rate.
 	totalDeaths = 0
@@ -86,9 +86,19 @@ func Example() {
 	}
 	fmt.Printf("total deaths using local underlying incidence: %.0f\n", totalDeaths)
 
+	// This is how we can calculate additional deaths caused by doubling
+	// air pollution using a local underlying incidence rate:
+	doubleDeaths = 0
+	for i, pi := range p {
+		io := Io(z[i], NasariACS, I/100000)
+		doubleDeaths += Outcome(pi, z[i]*2, io, NasariACS) - Outcome(pi, z[i], io, NasariACS)
+	}
+	fmt.Printf("additional deaths caused by doubling air pollution (local underlying incidence): %.0f\n", doubleDeaths)
+
 	// Output:
 	// total deaths using regional underlying incidence: 672
 	// additional deaths caused by doubling air pollution: 403
 	// lives saved by halving air pollution: 389
 	// total deaths using local underlying incidence: 665
+	// additional deaths caused by doubling air pollution (local underlying incidence): 401
 }
