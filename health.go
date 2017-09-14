@@ -1,7 +1,11 @@
 // Package epi holds a collection of functions for calculating the health impacts of air pollution.
 package epi
 
-import "math"
+import (
+	"math"
+
+	"github.com/gonum/floats"
+)
 
 // Nasari implements a class of simple approximations to the exposure response
 // models described in:
@@ -20,7 +24,7 @@ type Nasari struct {
 	F func(z float64) float64
 }
 
-// HR calculates the health risk caused by concentration z.
+// HR calculates the hazard ratio caused by concentration z.
 func (n Nasari) HR(z float64) float64 {
 	return math.Exp(n.Gamma * n.F(z) / (1 + math.Exp(-(z-n.Delta)/n.Lambda)))
 }
@@ -32,4 +36,46 @@ var NasariACS = Nasari{
 	Delta:  6.94,
 	Lambda: 3.37,
 	F:      func(z float64) float64 { return math.Log(z + 1) },
+}
+
+// HRer is an interface for any type that can calculate the hazard ratio
+// caused by concentration z.
+type HRer interface {
+	HR(z float64) float64
+}
+
+// IoRegional returns the underlying regional average incidence rate for a region where
+// the reported incidence rate is I, individual locations within the
+// region have population p and concentration z, and hr specifies the
+// hazard ratio as a function of z, as presented in Equations 2 and 3 of:
+//
+// Apte JS, Marshall JD, Cohen AJ, Brauer M (2015) Addressing Global
+// Mortality from Ambient PM2.5. Environmental Science and Technology
+// 49(13):8057–8066.
+func IoRegional(p, z []float64, hr HRer, I float64) float64 {
+	var hrBar float64
+	for i, pi := range p {
+		hrBar += pi * hr.HR(z[i])
+	}
+	hrBar /= floats.Sum(p)
+	return I / hrBar
+}
+
+// Io returns the underlying incidence rate where
+// the reported incidence rate is I, concentration is z,
+// and hr specifies the hazard ratio as a function of z. When possible,
+// IoRegional should be used instead of this function.
+func Io(z float64, hr HRer, I float64) float64 {
+	return I / hr.HR(z)
+}
+
+// Outcome returns the number of incidences occuring in population p when
+// exposed to concentration z given underlying incidence rate Io and
+// hazard relationship hr(z), as presented in Equation 2 of:
+//
+// Apte JS, Marshall JD, Cohen AJ, Brauer M (2015) Addressing Global
+// Mortality from Ambient PM2.5. Environmental Science and Technology
+// 49(13):8057–8066.
+func Outcome(p, z, Io float64, hr HRer) float64 {
+	return p * Io * (hr.HR(z) - 1)
 }
