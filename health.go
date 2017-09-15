@@ -57,7 +57,11 @@ func IoRegional(p, z []float64, hr HRer, I float64) float64 {
 	for i, pi := range p {
 		hrBar += pi * hr.HR(z[i])
 	}
-	hrBar /= floats.Sum(p)
+	pSum := floats.Sum(p)
+	hrBar /= pSum
+	if pSum == 0 || hrBar == 0 {
+		return 0
+	}
 	return I / hrBar
 }
 
