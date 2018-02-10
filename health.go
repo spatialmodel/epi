@@ -22,12 +22,17 @@ type Nasari struct {
 
 	// F is the concentration transformation function.
 	F func(z float64) float64
+
+	Label string
 }
 
 // HR calculates the hazard ratio caused by concentration z.
 func (n Nasari) HR(z float64) float64 {
 	return math.Exp(n.Gamma * n.F(z) / (1 + math.Exp(-(z-n.Delta)/n.Lambda)))
 }
+
+// Name returns the label for this function.
+func (n Nasari) Name() string { return n.Label }
 
 // NasariACS is an exposure-response model fit to the American Cancer Society
 // Cancer Prevention II cohort all causes of death from fine particulate matter.
@@ -36,12 +41,14 @@ var NasariACS = Nasari{
 	Delta:  6.94,
 	Lambda: 3.37,
 	F:      func(z float64) float64 { return math.Log(z + 1) },
+	Label:  "NasariACS",
 }
 
 // HRer is an interface for any type that can calculate the hazard ratio
 // caused by concentration z.
 type HRer interface {
 	HR(z float64) float64
+	Name() string
 }
 
 // IoRegional returns the underlying regional average incidence rate for a region where
