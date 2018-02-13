@@ -23,6 +23,7 @@ type Nasari struct {
 	// F is the concentration transformation function.
 	F func(z float64) float64
 
+	// Label is the name of the function.
 	Label string
 }
 
@@ -42,6 +43,60 @@ var NasariACS = Nasari{
 	Lambda: 3.37,
 	F:      func(z float64) float64 { return math.Log(z + 1) },
 	Label:  "NasariACS",
+}
+
+// Cox implements a Cox proportional hazards model.
+type Cox struct {
+	// Beta is the model coefficient
+	Beta float64
+
+	// Label is the name of the function.
+	Label string
+}
+
+// HR calculates the hazard ratio caused by concentration z.
+func (c Cox) HR(z float64) float64 {
+	return math.Exp(c.Beta * z)
+}
+
+// Name returns the label for this function.
+func (c Cox) Name() string { return c.Label }
+
+// Krewski2009 is a Cox proportional-hazards model from the study:
+//
+// Krewski, D., Jerrett, M., Burnett, R. T., Ma, R., Hughes, E., Shi, Y., … Thun, M. J. (2009).
+// Extended Follow-Up and Spatial Analysis of the American Cancer Society Study Linking
+// Particulate Air Pollution and Mortality. Retrieved from http://www.ncbi.nlm.nih.gov/pubmed/19627030
+//
+// This function is from Table 11 of the study and does not account for ecologic
+// covariates.
+var Krewski2009 = Cox{
+	Beta:  0.005826890812, // ln(1.06) / 10
+	Label: "Krewski2009",
+}
+
+// Krewski2009Ecologic is a Cox proportional-hazards model from the study:
+//
+// Krewski, D., Jerrett, M., Burnett, R. T., Ma, R., Hughes, E., Shi, Y., … Thun, M. J. (2009).
+// Extended Follow-Up and Spatial Analysis of the American Cancer Society Study Linking
+// Particulate Air Pollution and Mortality. Retrieved from http://www.ncbi.nlm.nih.gov/pubmed/19627030
+//
+// This function is from Table 11 of the study and does not account for ecologic
+// covariates.
+var Krewski2009Ecologic = Cox{
+	Beta:  0.007510747249, // ln(1.078) / 10
+	Label: "Krewski2009Ecologic",
+}
+
+// Lepeule2012 is a Cox proportional-hazards model from the study:
+//
+// Lepeule, J., Laden, F., Dockery, D., & Schwartz, J. (2012). Chronic exposure
+// to fine particles and mortality: An extended follow-up of the Harvard six
+// cities study from 1974 to 2009. Environmental Health Perspectives, 120(7),
+// 965–970. http://doi.org/10.1289/ehp.1104660
+var Lepeule2012 = Cox{
+	Beta:  0.01310282624, // ln(1.14) / 10
+	Label: "Krewski2009Ecologic",
 }
 
 // HRer is an interface for any type that can calculate the hazard ratio
