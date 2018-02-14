@@ -50,13 +50,17 @@ type Cox struct {
 	// Beta is the model coefficient
 	Beta float64
 
+	// Threshold is the concentration below which health effects are assumed
+	// to be zero.
+	Threshold float64
+
 	// Label is the name of the function.
 	Label string
 }
 
 // HR calculates the hazard ratio caused by concentration z.
 func (c Cox) HR(z float64) float64 {
-	return math.Exp(c.Beta * z)
+	return math.Max(0, math.Exp(c.Beta*z)-math.Exp(c.Beta*c.Threshold))
 }
 
 // Name returns the label for this function.
@@ -71,8 +75,9 @@ func (c Cox) Name() string { return c.Label }
 // This function is from Table 11 of the study and does not account for ecologic
 // covariates.
 var Krewski2009 = Cox{
-	Beta:  0.005826890812, // ln(1.06) / 10
-	Label: "Krewski2009",
+	Beta:      0.005826890812, // ln(1.06) / 10
+	Threshold: 5,              // Lowest observed concentration.
+	Label:     "Krewski2009",
 }
 
 // Krewski2009Ecologic is a Cox proportional-hazards model from the study:
@@ -84,8 +89,9 @@ var Krewski2009 = Cox{
 // This function is from Table 11 of the study and does not account for ecologic
 // covariates.
 var Krewski2009Ecologic = Cox{
-	Beta:  0.007510747249, // ln(1.078) / 10
-	Label: "Krewski2009Ecologic",
+	Beta:      0.007510747249, // ln(1.078) / 10
+	Threshold: 5,              // Lowest observed concentration.
+	Label:     "Krewski2009Ecologic",
 }
 
 // Lepeule2012 is a Cox proportional-hazards model from the study:
