@@ -60,7 +60,7 @@ type Cox struct {
 
 // HR calculates the hazard ratio caused by concentration z.
 func (c Cox) HR(z float64) float64 {
-	return math.Max(0, math.Exp(c.Beta*z)-math.Exp(c.Beta*c.Threshold))
+	return math.Exp(c.Beta * math.Max(0, z-c.Threshold))
 }
 
 // Name returns the label for this function.

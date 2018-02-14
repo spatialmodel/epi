@@ -102,3 +102,22 @@ func Example() {
 	// total deaths using local underlying incidence: 665
 	// additional deaths caused by doubling air pollution (local underlying incidence): 401
 }
+
+func TestKrewski2009(t *testing.T) {
+	k := Krewski2009
+	a := k.HR(1)
+	aWant := 1.0
+	if a != aWant {
+		t.Errorf("for z=%g: %g != %g", 1.0, a, aWant)
+	}
+	b := k.HR(5)
+	bWant := 1.0
+	if b != bWant {
+		t.Errorf("for z=%g: %g != %g", 5.0, b, bWant)
+	}
+	c := k.HR(15)
+	cWant := 1.0599999999957856
+	if c != cWant {
+		t.Errorf("for z=%g: %g != %g", 15.0, c, cWant)
+	}
+}
